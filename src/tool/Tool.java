@@ -31,6 +31,8 @@ public class Tool implements GameState {
 	BasicToken cToken;
 	BasicToken mouseOver;
 
+	int mouseButton = -1;
+
 	@Override
 	public void mouseClicked(int button, int x, int y, int clickCount) {
 
@@ -38,12 +40,14 @@ public class Tool implements GameState {
 
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
-		if (cToken == null)
-			return;
-		cToken.x += newx - oldx;
-		cToken.y += newy - oldy;
+		if (mouseButton == 0) {
+			if (cToken == null)
+				return;
+			cToken.x += newx - oldx;
+			cToken.y += newy - oldy;
 
-		mouseOver = null;
+			mouseOver = null;
+		}
 	}
 
 	@Override
@@ -62,11 +66,14 @@ public class Tool implements GameState {
 
 	@Override
 	public void mousePressed(int button, int x, int y) {
-		for (BasicToken t : tokens) {
-			if (t.rect().contains(x, y)) {
-				cToken = t;
-				dragStartX = t.x;
-				dragStartY = t.y;
+		mouseButton = button;
+		if (button == 0) {
+			for (BasicToken t : tokens) {
+				if (t.rect().contains(x, y)) {
+					cToken = t;
+					dragStartX = t.x;
+					dragStartY = t.y;
+				}
 			}
 		}
 	}
@@ -77,14 +84,15 @@ public class Tool implements GameState {
 
 	@Override
 	public void mouseReleased(int button, int x, int y) {
-		if (cToken != null && useGrid) {
-			cToken.x = gridify(cToken.x);
-			cToken.y = gridify(cToken.y);
+		if (button == 0) {
+			if (cToken != null && useGrid) {
+				cToken.x = gridify(cToken.x);
+				cToken.y = gridify(cToken.y);
 
+			}
+			mouseOver = cToken;
+			cToken = null;
 		}
-
-		mouseOver = cToken;
-		cToken = null;
 	}
 
 	@Override
@@ -114,13 +122,19 @@ public class Tool implements GameState {
 	@Override
 	public void keyPressed(int key, char c) {
 		if (key == Keyboard.KEY_W) {
-			BasicToken bt = TokenFactory.basicToken(useGrid? gridify(currentInput.getMouseX()) : currentInput.getMouseX(),
-					useGrid? gridify(currentInput.getMouseY()) : currentInput.getMouseY(), scale, scale);
+			BasicToken bt = TokenFactory.basicToken(
+					useGrid ? gridify(currentInput.getMouseX()) : currentInput
+							.getMouseX(),
+					useGrid ? gridify(currentInput.getMouseY()) : currentInput
+							.getMouseY(), scale, scale);
 			tokens.add(bt);
 		}
 		if (key == Keyboard.KEY_E) {
-			BasicToken bt = TokenFactory.basicToken(useGrid? gridify(currentInput.getMouseX()) : currentInput.getMouseX(),
-					useGrid? gridify(currentInput.getMouseY()) : currentInput.getMouseY(), scale*2, scale*2);
+			BasicToken bt = TokenFactory.basicToken(
+					useGrid ? gridify(currentInput.getMouseX()) : currentInput
+							.getMouseX(),
+					useGrid ? gridify(currentInput.getMouseY()) : currentInput
+							.getMouseY(), scale * 2, scale * 2);
 			tokens.add(bt);
 		}
 	}
@@ -215,13 +229,13 @@ public class Tool implements GameState {
 	@Override
 	public void render(GameContainer container, StateBasedGame game, Graphics g)
 			throws SlickException {
-		
-		g.setColor(new Color(22,40,22));
-		for(int i = 0; i< container.getWidth() ; i+=scale){
+
+		g.setColor(new Color(22, 40, 22));
+		for (int i = 0; i < container.getWidth(); i += scale) {
 			g.drawLine(i, 0, i, container.getHeight());
 		}
-		
-		for(int h = 0; h< container.getHeight() ; h+=scale){
+
+		for (int h = 0; h < container.getHeight(); h += scale) {
 			g.drawLine(0, h, container.getWidth(), h);
 		}
 
@@ -232,30 +246,28 @@ public class Tool implements GameState {
 			g.drawRect(t.x, t.y, t.width, t.height);
 		}
 
-		if (cToken != null){
-			if(useGrid){
-				g.setColor(new Color(100,160,100,127));
+		if (cToken != null) {
+			if (useGrid) {
+				g.setColor(new Color(100, 160, 100, 127));
 				Rectangle rect = cToken.rect();
-				rect.setX(gridify((int)rect.getX()));
-				rect.setY(gridify((int)rect.getY()));
+				rect.setX(gridify((int) rect.getX()));
+				rect.setY(gridify((int) rect.getY()));
 				g.fill(rect);
 			}
-			
+
 			g.setColor(Color.green);
 			int xdiff = Math.abs(gridify(dragStartX) - gridify(cToken.x));
 			int ydiff = Math.abs(gridify(dragStartY) - gridify(cToken.y));
-			g.drawString("dist:" + Math.max(xdiff/scale, ydiff/scale) , cToken.x-30, cToken.y -30);
+			g.drawString("dist:" + Math.max(xdiff / scale, ydiff / scale),
+					cToken.x - 30, cToken.y - 30);
 		}
-		
+
 		if (mouseOver != null) {
 			g.setColor(Color.lightGray);
-			g.fillRect(mouseOver.x + 5,
-					mouseOver.y + 15, 150, 100);
+			g.fillRect(mouseOver.x + 5, mouseOver.y + 15, 150, 100);
 			g.setColor(Color.black);
-			g.drawString(" " + mouseOver.x,
-					mouseOver.x + 10, mouseOver.y + 20);
-			g.drawString(" " + mouseOver.ID,
-					mouseOver.x + 10, mouseOver.y + 35);
+			g.drawString(" " + mouseOver.x, mouseOver.x + 10, mouseOver.y + 20);
+			g.drawString(" " + mouseOver.ID, mouseOver.x + 10, mouseOver.y + 35);
 		}
 
 	}
