@@ -14,24 +14,30 @@ import org.newdawn.slick.gui.MouseOverArea;
 import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import creature.Creature;
+import creature.Weapon;
+
 import token.BasicToken;
 import token.TokenFactory;
 
 public class Tool implements GameState {
-
 	int scale = 25;
 	boolean useGrid = true;
-
 	int dragStartX = 0;
 	int dragStartY = 0;
-
 	List<BasicToken> tokens = new ArrayList<>();
 	Input currentInput;
-
 	BasicToken cToken;
 	BasicToken mouseOver;
-
 	int mouseButton = -1;
+	boolean showCreatures = false;
+	List<Weapon> weapons;
+	List<Creature> creatures;
+
+	public Tool(List<Weapon> weapons, List<Creature> creatures) {
+		this.weapons = weapons;
+		this.creatures = creatures;
+	}
 
 	@Override
 	public void mouseClicked(int button, int x, int y, int clickCount) {
@@ -137,10 +143,12 @@ public class Tool implements GameState {
 							.getMouseY(), scale * 2, scale * 2);
 			tokens.add(bt);
 		}
+		showCreatures = key == Keyboard.KEY_Q;
 	}
 
 	@Override
 	public void keyReleased(int key, char c) {
+		showCreatures = showCreatures && !(key == Keyboard.KEY_Q);
 	}
 
 	@Override
@@ -268,6 +276,23 @@ public class Tool implements GameState {
 			g.setColor(Color.black);
 			g.drawString(" " + mouseOver.x, mouseOver.x + 10, mouseOver.y + 20);
 			g.drawString(" " + mouseOver.ID, mouseOver.x + 10, mouseOver.y + 35);
+		}
+
+		if (showCreatures) {
+			g.setColor(new Color(30, 30, 100, 230));
+			g.fillRect(0, 0, 200, container.getHeight());
+			g.setColor(Color.white);
+			for (int i = 0; i < creatures.size(); i++) {
+				int baseline = 50 * i;
+				g.setColor(Color.white);
+				g.fillRect(0, baseline, 200, 50);
+				g.setColor(Color.black);
+				g.drawRect(0, baseline, 200, 50);
+
+				Creature c = creatures.get(i);
+				g.drawString(c.getName() + " lvl " + c.getLevel(), 5,
+						baseline + 5);
+			}
 		}
 
 	}
