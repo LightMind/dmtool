@@ -1,0 +1,3 @@
+Longsword,1d8,+3,-,HeavyBlade,Versatile
+Handaxe,1d6,+2,5/10,Axe,OffHand-HeavyThrown
+Greataxe,1d12,+2,-,Axe,HighCrit
