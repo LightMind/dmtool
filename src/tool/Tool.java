@@ -21,16 +21,20 @@ import token.BasicToken;
 import token.TokenFactory;
 
 public class Tool implements GameState {
-	int scale = 25;
 	boolean useGrid = true;
+	boolean showCreatures = false;
+
 	int dragStartX = 0;
 	int dragStartY = 0;
-	List<BasicToken> tokens = new ArrayList<>();
+	int scale = 25;
+	int mouseButton = 0;
+	int menuWidth = 200;
+
 	Input currentInput;
 	BasicToken cToken;
 	BasicToken mouseOver;
-	int mouseButton = -1;
-	boolean showCreatures = false;
+
+	List<BasicToken> tokens = new ArrayList<>();
 	List<Weapon> weapons;
 	List<Creature> creatures;
 
@@ -59,14 +63,16 @@ public class Tool implements GameState {
 	@Override
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
 		boolean found = false;
-		for (BasicToken t : tokens) {
-			if (t.rect().contains(newx, newy)) {
-				mouseOver = t;
-				found = true;
+		if (!showCreatures || newx > menuWidth) {
+			for (BasicToken t : tokens) {
+				if (t.rect().contains(newx, newy)) {
+					mouseOver = t;
+					found = true;
+				}
 			}
-		}
-		if (!found) {
-			mouseOver = null;
+			if (!found) {
+				mouseOver = null;
+			}
 		}
 	}
 
@@ -280,14 +286,14 @@ public class Tool implements GameState {
 
 		if (showCreatures) {
 			g.setColor(new Color(30, 30, 100, 230));
-			g.fillRect(0, 0, 200, container.getHeight());
+			g.fillRect(0, 0, menuWidth, container.getHeight());
 			g.setColor(Color.white);
 			for (int i = 0; i < creatures.size(); i++) {
 				int baseline = 50 * i;
 				g.setColor(Color.white);
-				g.fillRect(0, baseline, 200, 50);
+				g.fillRect(0, baseline, menuWidth, 50);
 				g.setColor(Color.black);
-				g.drawRect(0, baseline, 200, 50);
+				g.drawRect(0, baseline, menuWidth, 50);
 
 				Creature c = creatures.get(i);
 				g.drawString(c.getName() + " lvl " + c.getLevel(), 5,
