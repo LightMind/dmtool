@@ -8,10 +8,10 @@ import org.newdawn.slick.AppGameContainer;
 import org.newdawn.slick.Game;
 import org.newdawn.slick.SlickException;
 
-import creature.Creature;
+import creature.CreatureTemplate;
 import creature.Weapon;
 
-import technical.CreatureParser;
+import technical.CreatureTemplateParser;
 import technical.WeaponParser;
 
 public class Main {
@@ -19,11 +19,11 @@ public class Main {
 
 		List<Weapon> w1 = WeaponParser
 				.parseWeapons(new File("res/weapons.txt"));
-		List<Creature> w2 = new ArrayList<Creature>();
+		List<CreatureTemplate> w2 = new ArrayList<CreatureTemplate>();
 		File creatures = new File("res/creatures/");
 		if (creatures.isDirectory()) {
 			for (File f : creatures.listFiles()) {
-				w2.add(CreatureParser.parseFile(f));
+				w2.add(CreatureTemplateParser.parseFile(f));
 			}
 		}
 

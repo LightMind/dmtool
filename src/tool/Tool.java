@@ -10,11 +10,10 @@ import org.newdawn.slick.Graphics;
 import org.newdawn.slick.Input;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.geom.Rectangle;
-import org.newdawn.slick.gui.MouseOverArea;
 import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
 
-import creature.Creature;
+import creature.CreatureTemplate;
 import creature.Weapon;
 
 import token.BasicToken;
@@ -30,15 +29,20 @@ public class Tool implements GameState {
 	int mouseButton = 0;
 	int menuWidth = 200;
 
+	int boxWidth = 300;
+	int boxHeight = 200;
+
+	Rectangle currentMouseOverBox = null;
+
 	Input currentInput;
 	BasicToken cToken;
 	BasicToken mouseOver;
 
 	List<BasicToken> tokens = new ArrayList<>();
 	List<Weapon> weapons;
-	List<Creature> creatures;
+	List<CreatureTemplate> creatures;
 
-	public Tool(List<Weapon> weapons, List<Creature> creatures) {
+	public Tool(List<Weapon> weapons, List<CreatureTemplate> creatures) {
 		this.weapons = weapons;
 		this.creatures = creatures;
 	}
@@ -57,6 +61,7 @@ public class Tool implements GameState {
 			cToken.y += newy - oldy;
 
 			mouseOver = null;
+			currentMouseOverBox = null;
 		}
 	}
 
@@ -68,10 +73,12 @@ public class Tool implements GameState {
 				if (t.rect().contains(newx, newy)) {
 					mouseOver = t;
 					found = true;
+					currentMouseOverBox = getMouseOverBox(t);
 				}
 			}
 			if (!found) {
 				mouseOver = null;
+				currentMouseOverBox = null;
 			}
 		}
 	}
@@ -79,13 +86,25 @@ public class Tool implements GameState {
 	@Override
 	public void mousePressed(int button, int x, int y) {
 		mouseButton = button;
-		if (button == 0) {
-			for (BasicToken t : tokens) {
-				if (t.rect().contains(x, y)) {
-					cToken = t;
-					dragStartX = t.x;
-					dragStartY = t.y;
+		if (!showCreatures || x > menuWidth) {
+			if (button == 0) {
+				for (BasicToken t : tokens) {
+					if (t.rect().contains(x, y)) {
+						cToken = t;
+						dragStartX = t.x;
+						dragStartY = t.y;
+					}
 				}
+			}
+		}
+		if (showCreatures && x < menuWidth) {
+			int index = y / 50;
+			if (index < creatures.size()) {
+				cToken = TokenFactory.basicToken(x, y, scale, scale,
+						creatures.get(index));
+				tokens.add(cToken);
+				dragStartX = x;
+				dragStartY = y;
 			}
 		}
 	}
@@ -103,6 +122,7 @@ public class Tool implements GameState {
 
 			}
 			mouseOver = cToken;
+			currentMouseOverBox = getMouseOverBox(mouseOver);
 			cToken = null;
 		}
 	}
@@ -133,22 +153,6 @@ public class Tool implements GameState {
 
 	@Override
 	public void keyPressed(int key, char c) {
-		if (key == Keyboard.KEY_W) {
-			BasicToken bt = TokenFactory.basicToken(
-					useGrid ? gridify(currentInput.getMouseX()) : currentInput
-							.getMouseX(),
-					useGrid ? gridify(currentInput.getMouseY()) : currentInput
-							.getMouseY(), scale, scale);
-			tokens.add(bt);
-		}
-		if (key == Keyboard.KEY_E) {
-			BasicToken bt = TokenFactory.basicToken(
-					useGrid ? gridify(currentInput.getMouseX()) : currentInput
-							.getMouseX(),
-					useGrid ? gridify(currentInput.getMouseY()) : currentInput
-							.getMouseY(), scale * 2, scale * 2);
-			tokens.add(bt);
-		}
 		showCreatures = key == Keyboard.KEY_Q;
 	}
 
@@ -278,10 +282,11 @@ public class Tool implements GameState {
 
 		if (mouseOver != null) {
 			g.setColor(Color.lightGray);
-			g.fillRect(mouseOver.x + 5, mouseOver.y + 15, 150, 100);
+			g.fill(currentMouseOverBox);
 			g.setColor(Color.black);
-			g.drawString(" " + mouseOver.x, mouseOver.x + 10, mouseOver.y + 20);
-			g.drawString(" " + mouseOver.ID, mouseOver.x + 10, mouseOver.y + 35);
+			g.drawString(" " + mouseOver.template.getName(), mouseOver.x + 5,
+					mouseOver.y + 5 + mouseOver.height);
+
 		}
 
 		if (showCreatures) {
@@ -295,12 +300,11 @@ public class Tool implements GameState {
 				g.setColor(Color.black);
 				g.drawRect(0, baseline, menuWidth, 50);
 
-				Creature c = creatures.get(i);
+				CreatureTemplate c = creatures.get(i);
 				g.drawString(c.getName() + " lvl " + c.getLevel(), 5,
 						baseline + 5);
 			}
 		}
-
 	}
 
 	@Override
@@ -309,4 +313,11 @@ public class Tool implements GameState {
 
 	}
 
+	public Rectangle getMouseOverBox(BasicToken mouseOver) {
+		if (mouseOver == null) {
+			return null;
+		}
+		return new Rectangle(mouseOver.x, mouseOver.y + mouseOver.height,
+				boxWidth, boxHeight);
+	}
 }

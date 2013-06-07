@@ -2,7 +2,7 @@ package creature;
 
 import java.util.List;
 
-public interface Creature {
+public interface CreatureTemplate {
 	public static int STRENGTH = 1;
 	public static int CONSTITUTION = 2;
 	public static int INTELLIGENCE = 4;

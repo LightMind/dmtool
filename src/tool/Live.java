@@ -6,15 +6,15 @@ import org.newdawn.slick.GameContainer;
 import org.newdawn.slick.SlickException;
 import org.newdawn.slick.state.StateBasedGame;
 
-import creature.Creature;
+import creature.CreatureTemplate;
 import creature.Weapon;
 
 public class Live extends StateBasedGame {
 
 	List<Weapon> weapons;
-	List<Creature> creature;
+	List<CreatureTemplate> creature;
 
-	public Live(List<Weapon> w1, List<Creature> w2) {
+	public Live(List<Weapon> w1, List<CreatureTemplate> w2) {
 		super("DM-Tool");
 		weapons =w1;
 		creature=w2;

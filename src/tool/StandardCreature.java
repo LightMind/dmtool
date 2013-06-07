@@ -3,10 +3,10 @@ package tool;
 import java.util.ArrayList;
 import java.util.List;
 
-import creature.Creature;
+import creature.CreatureTemplate;
 import creature.Weapon;
 
-public class StandardCreature implements Creature {
+public class StandardCreature implements CreatureTemplate {
 
 	private String name;
 	private int[] ability;

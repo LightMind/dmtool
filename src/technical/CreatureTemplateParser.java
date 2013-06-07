@@ -8,12 +8,12 @@ import java.util.Scanner;
 
 import tool.StandardCreature;
 
-import creature.Creature;
+import creature.CreatureTemplate;
 import creature.Weapon;
 
-public class CreatureParser {
-	public static Creature parseFile(File f){
-		Creature result = null;
+public class CreatureTemplateParser {
+	public static CreatureTemplate parseFile(File f){
+		CreatureTemplate result = null;
 		try {
 			Scanner sc = new Scanner(f);
 			String name = sc.nextLine();
@@ -52,7 +52,8 @@ public class CreatureParser {
 			}
 			
 			StandardCreature creature = new StandardCreature(name, level, abbInts, modsInts, defsInts, hp, weapons, initiative, speed);
-			result = creature;			
+			result = creature;	
+			sc.close();
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
