@@ -71,6 +71,7 @@ public class Tool implements GameState {
 
 			mouseOver = null;
 			cmBox = null;
+			destroyMouseBox();
 		}
 	}
 
@@ -151,7 +152,7 @@ public class Tool implements GameState {
 
 			}
 			mouseOver = cToken;
-			cmBox = getMouseOverBox(mouseOver);
+			if ( cToken != null )createMouseBox(mouseOver);
 			cToken = null;
 		}
 	}
@@ -195,6 +196,9 @@ public class Tool implements GameState {
 		if (cmBox != null && mouseOver != null) {
 			for (Button b : buttons) {
 				if (b.shape().contains(mx, my)) {
+					if ( key == Keyboard.KEY_SUBTRACT){
+						b.buffer("-");
+					} else
 					if (c >= '0' && c <= '9' || key == Keyboard.KEY_MINUS) {
 						b.buffer("" + c);
 					} else if (key==Keyboard.KEY_BACK){

@@ -44,14 +44,14 @@ public class TokenHpButton implements Button {
 
 	@Override
 	public void buffer(String c) {
-		if (c.equals("-") && !buffer.isEmpty()) {
+		if ((c.equals("-"))&& !buffer.isEmpty()) {
 			return;
 		}
 		if (!c.equals("EOI")) {
 
 			buffer += c;
 		} else {
-			if (buffer.length() <= 5 && !buffer.equals("-"))
+			if (buffer.length() <= 5 && !buffer.equals("-") && buffer.length() > 0)
 				t.hpmod += Integer.parseInt(buffer);
 			buffer = "";
 		}
