@@ -77,6 +77,15 @@ public class Tool implements GameState {
 	@Override
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
 		boolean found = false;
+		// test if we were inside button / buffer input, and we now have left it
+
+		for (Button b : buttons) {
+			if (b.shape().contains(oldx, oldy)
+					&& !b.shape().contains(newx, newy)) {
+				b.forget();
+			}
+		}
+
 		// first, test if inside shown box
 		if (cmBox != null && cmBox.contains(newx, newy)) {
 
@@ -182,6 +191,20 @@ public class Tool implements GameState {
 	@Override
 	public void keyPressed(int key, char c) {
 		showCreatures = key == Keyboard.KEY_Q;
+
+		if (cmBox != null && mouseOver != null) {
+			for (Button b : buttons) {
+				if (b.shape().contains(mx, my)) {
+					if (c >= '0' && c <= '9' || key == Keyboard.KEY_MINUS) {
+						b.buffer("" + c);
+					} else if (key==Keyboard.KEY_BACK){
+						b.forget();
+					} else {
+						b.buffer("EOI");
+					}
+				}
+			}
+		}
 	}
 
 	@Override
@@ -366,9 +389,8 @@ public class Tool implements GameState {
 	public void createMouseBox(BasicToken token) {
 		buttons.clear();
 		cmBox = getMouseOverBox(token);
-		Button bHealthUp = new TokenHpButton(
-				(int) cmBox.getX() + boxWidth - 30, (int) cmBox.getY() + 30,
-				token);
+		Button bHealthUp = new TokenHpButton((int) cmBox.getX(),
+				(int) cmBox.getY() + 30, token);
 		buttons.add(bHealthUp);
 	}
 

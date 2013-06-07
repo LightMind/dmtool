@@ -29,13 +29,37 @@ public class TokenHpButton implements Button {
 
 	@Override
 	public Shape shape() {
-		return new Rectangle(x, y, 20, 20);
+		return new Rectangle(x, y, 200, 20);
 	}
 
 	@Override
 	public void render(Graphics g) {
-		g.setColor(Color.green);
-		g.fillRect(0, 0, 20, 20);
+		g.setColor(new Color(0, 100, 0, 90));
+		g.fillRect(0, 0, 200, 20);
+		g.setColor(new Color(255, 255, 255));
+		g.drawString(buffer, 200 - buffer.length() * 9, 0);
+	}
+
+	public String buffer = "";
+
+	@Override
+	public void buffer(String c) {
+		if (c.equals("-") && !buffer.isEmpty()) {
+			return;
+		}
+		if (!c.equals("EOI")) {
+
+			buffer += c;
+		} else {
+			if (buffer.length() <= 5 && !buffer.equals("-"))
+				t.hpmod += Integer.parseInt(buffer);
+			buffer = "";
+		}
+	}
+
+	@Override
+	public void forget() {
+		buffer = "";
 	}
 
 }

@@ -7,4 +7,6 @@ public interface Button {
 	public void click(int mousebutton);
 	public Shape shape();
 	public void render(Graphics g);
+	public void buffer(String c);
+	public void forget();
 }
