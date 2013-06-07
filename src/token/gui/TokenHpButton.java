@@ -8,32 +8,34 @@ import token.BasicToken;
 
 import gui.Button;
 
-public class TokenHpButton implements Button{
+public class TokenHpButton implements Button {
 
-	public int x,y;
+	public int x, y;
 	public BasicToken t;
 
-	public TokenHpButton(int x, int y, BasicToken t){
+	public TokenHpButton(int x, int y, BasicToken t) {
 		this.x = x;
 		this.y = y;
 		this.t = t;
 	}
 
 	@Override
-	public void click() {
-		t.hpmod++;
-		System.out.println("click");
+	public void click(int mousebutton) {
+		if (mousebutton == 1)
+			t.hpmod++;
+		if (mousebutton == -1)
+			t.hpmod--;
 	}
 
 	@Override
 	public Shape shape() {
-		return new Rectangle(x,y,20,20);
+		return new Rectangle(x, y, 20, 20);
 	}
 
 	@Override
 	public void render(Graphics g) {
 		g.setColor(Color.green);
-		g.fillRect(0,0,20,20);
+		g.fillRect(0, 0, 20, 20);
 	}
 
 }

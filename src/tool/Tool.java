@@ -35,7 +35,7 @@ public class Tool implements GameState {
 	int boxWidth = 300;
 	int boxHeight = 200;
 
-	Rectangle currentMouseOverBox = null;
+	Rectangle cmBox = null;
 
 	Input currentInput;
 	BasicToken cToken;
@@ -52,10 +52,10 @@ public class Tool implements GameState {
 
 	@Override
 	public void mouseClicked(int button, int x, int y, int clickCount) {
-		if (currentMouseOverBox != null && mouseOver != null) {
+		if (cmBox != null && mouseOver != null) {
 			for (Button b : buttons) {
 				if (b.shape().contains(x, y)) {
-					b.click();
+					b.click(0);
 				}
 			}
 		}
@@ -70,7 +70,7 @@ public class Tool implements GameState {
 			cToken.y += newy - oldy;
 
 			mouseOver = null;
-			currentMouseOverBox = null;
+			cmBox = null;
 		}
 	}
 
@@ -78,8 +78,7 @@ public class Tool implements GameState {
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
 		boolean found = false;
 		// first, test if inside shown box
-		if (currentMouseOverBox != null
-				&& currentMouseOverBox.contains(newx, newy)) {
+		if (cmBox != null && cmBox.contains(newx, newy)) {
 
 		} else { // not inside the box, check for other tokens.
 			if (!showCreatures || newx > menuWidth) {
@@ -92,11 +91,14 @@ public class Tool implements GameState {
 					}
 				}
 				if (!found) {
+					destroyMouseBox();
 					mouseOver = null;
-					currentMouseOverBox = null;
+					cmBox = null;
 				}
 			}
 		}
+		mx = newx;
+		my = newy;
 	}
 
 	@Override
@@ -131,7 +133,7 @@ public class Tool implements GameState {
 
 	@Override
 	public void mouseReleased(int button, int x, int y) {
-		if (currentMouseOverBox != null && currentMouseOverBox.contains(x, y)) {
+		if (cmBox != null && cmBox.contains(x, y)) {
 
 		} else if (button == 0) {
 			if (cToken != null && useGrid) {
@@ -140,14 +142,22 @@ public class Tool implements GameState {
 
 			}
 			mouseOver = cToken;
-			currentMouseOverBox = getMouseOverBox(mouseOver);
+			cmBox = getMouseOverBox(mouseOver);
 			cToken = null;
 		}
 	}
 
+	int mx, my;
+
 	@Override
 	public void mouseWheelMoved(int change) {
-
+		if (cmBox != null && mouseOver != null) {
+			for (Button b : buttons) {
+				if (b.shape().contains(mx, my)) {
+					b.click(change > 0 ? 1 : -1);
+				}
+			}
+		}
 	}
 
 	@Override
@@ -300,10 +310,14 @@ public class Tool implements GameState {
 
 		if (mouseOver != null) {
 			g.setColor(Color.lightGray);
-			g.fill(currentMouseOverBox);
+			g.fill(cmBox);
 			g.setColor(Color.black);
 			g.drawString(" " + mouseOver.template.getName(), mouseOver.x + 5,
 					mouseOver.y + 5 + mouseOver.height);
+			g.drawString(
+					"Hp: " + (mouseOver.hpmod + mouseOver.template.getMaxHP())
+							+ " / " + mouseOver.template.getMaxHP(),
+					cmBox.getX() + 10, cmBox.getY() + 30);
 		}
 
 		if (mouseOver != null)
@@ -351,9 +365,15 @@ public class Tool implements GameState {
 
 	public void createMouseBox(BasicToken token) {
 		buttons.clear();
-		currentMouseOverBox = getMouseOverBox(token);
-		Button bHealthUp = new TokenHpButton((int) currentMouseOverBox.getX()
-				+ boxWidth - 30, (int) currentMouseOverBox.getY() + 30, token);
+		cmBox = getMouseOverBox(token);
+		Button bHealthUp = new TokenHpButton(
+				(int) cmBox.getX() + boxWidth - 30, (int) cmBox.getY() + 30,
+				token);
 		buttons.add(bHealthUp);
+	}
+
+	public void destroyMouseBox() {
+		buttons.clear();
+		cmBox = null;
 	}
 }
