@@ -1,5 +1,7 @@
 package tool;
 
+import gui.Button;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,6 +20,7 @@ import creature.Weapon;
 
 import token.BasicToken;
 import token.TokenFactory;
+import token.gui.TokenHpButton;
 
 public class Tool implements GameState {
 	boolean useGrid = true;
@@ -49,7 +52,13 @@ public class Tool implements GameState {
 
 	@Override
 	public void mouseClicked(int button, int x, int y, int clickCount) {
-
+		if (currentMouseOverBox != null && mouseOver != null) {
+			for (Button b : buttons) {
+				if (b.shape().contains(x, y)) {
+					b.click();
+				}
+			}
+		}
 	}
 
 	@Override
@@ -68,17 +77,24 @@ public class Tool implements GameState {
 	@Override
 	public void mouseMoved(int oldx, int oldy, int newx, int newy) {
 		boolean found = false;
-		if (!showCreatures || newx > menuWidth) {
-			for (BasicToken t : tokens) {
-				if (t.rect().contains(newx, newy)) {
-					mouseOver = t;
-					found = true;
-					currentMouseOverBox = getMouseOverBox(t);
+		// first, test if inside shown box
+		if (currentMouseOverBox != null
+				&& currentMouseOverBox.contains(newx, newy)) {
+
+		} else { // not inside the box, check for other tokens.
+			if (!showCreatures || newx > menuWidth) {
+				for (BasicToken t : tokens) {
+					if (t.rect().contains(newx, newy)) {
+						mouseOver = t;
+						found = true;
+						createMouseBox(t);
+
+					}
 				}
-			}
-			if (!found) {
-				mouseOver = null;
-				currentMouseOverBox = null;
+				if (!found) {
+					mouseOver = null;
+					currentMouseOverBox = null;
+				}
 			}
 		}
 	}
@@ -115,7 +131,9 @@ public class Tool implements GameState {
 
 	@Override
 	public void mouseReleased(int button, int x, int y) {
-		if (button == 0) {
+		if (currentMouseOverBox != null && currentMouseOverBox.contains(x, y)) {
+
+		} else if (button == 0) {
 			if (cToken != null && useGrid) {
 				cToken.x = gridify(cToken.x);
 				cToken.y = gridify(cToken.y);
@@ -286,8 +304,16 @@ public class Tool implements GameState {
 			g.setColor(Color.black);
 			g.drawString(" " + mouseOver.template.getName(), mouseOver.x + 5,
 					mouseOver.y + 5 + mouseOver.height);
-
 		}
+
+		if (mouseOver != null)
+			for (Button b : buttons) {
+				g.translate(b.shape().getMinX(), b.shape().getMinY());
+				g.pushTransform();
+				b.render(g);
+				g.popTransform();
+				g.resetTransform();
+			}
 
 		if (showCreatures) {
 			g.setColor(new Color(30, 30, 100, 230));
@@ -317,7 +343,17 @@ public class Tool implements GameState {
 		if (mouseOver == null) {
 			return null;
 		}
-		return new Rectangle(mouseOver.x, mouseOver.y + mouseOver.height,
+		return new Rectangle(mouseOver.x, mouseOver.y + mouseOver.height - 5,
 				boxWidth, boxHeight);
+	}
+
+	public List<Button> buttons = new ArrayList<Button>();
+
+	public void createMouseBox(BasicToken token) {
+		buttons.clear();
+		currentMouseOverBox = getMouseOverBox(token);
+		Button bHealthUp = new TokenHpButton((int) currentMouseOverBox.getX()
+				+ boxWidth - 30, (int) currentMouseOverBox.getY() + 30, token);
+		buttons.add(bHealthUp);
 	}
 }
