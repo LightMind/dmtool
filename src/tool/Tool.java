@@ -68,8 +68,7 @@ public class Tool implements GameState {
 				int index = (y - (mouseOver.y + 45 + mouseOver.height)) / 15;
 				if (index < mouseOver.template.getAttacks().size()) {
 					Attack attack = mouseOver.template.getAttacks().get(index);
-					int attackRoll = r.nextInt(20) + 1
-							+ attack.getAttackBonus();
+					int attackRoll = rollDice(d20) + attack.getAttackBonus();
 					int damageRoll = rollDice(attack.getDamageRoll())
 							+ attack.getDamageBonus();
 					System.out.println("Rolled " + attackRoll + " versus "
@@ -80,13 +79,24 @@ public class Tool implements GameState {
 		}
 	}
 
+	public Diceroll d20 = new Diceroll() {
+		@Override
+		public int getDice() {
+			return 20;
+		}
+
+		@Override
+		public int getAmount() {
+			return 1;
+		}
+	};
+
 	private int rollDice(Diceroll damageRoll) {
 		int sum = 0;
-		for (int i = 0; i < damageRoll.getDice(); i++) {
-			int temp = r.nextInt(damageRoll.getAmount()) + 1;
+		for (int i = 0; i < damageRoll.getAmount(); i++) {
+			int temp = r.nextInt(damageRoll.getDice()) + 1;
 			sum += temp;
-			System.out
-					.println("d" + damageRoll.getAmount() + " rolled " + temp);
+			System.out.println("d" + damageRoll.getDice() + " rolled " + temp);
 		}
 		return sum;
 	}

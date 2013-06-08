@@ -100,7 +100,7 @@ public class CreatureTemplateParser {
 		} else {
 			dice1 = Integer.parseInt(tt[4].substring(tt[4].indexOf('d') + 1));
 		}
-		final Diceroll diceroll = new StandardDice(diceAmount, dice1);
+		final Diceroll diceroll = new StandardDice(dice1,diceAmount);
 
 		final int bonus = bonus1;
 
@@ -157,7 +157,7 @@ public class CreatureTemplateParser {
 		} else {
 			dice1 = Integer.parseInt(tt[3].substring(tt[3].indexOf('d') + 1));
 		}
-		final Diceroll diceroll = new StandardDice(diceAmount, dice1);
+		final Diceroll diceroll = new StandardDice(dice1,diceAmount);
 
 		final int bonus = bonus1;
 
@@ -219,7 +219,6 @@ public class CreatureTemplateParser {
 
 			@Override
 			public int getDamageBonus() {
-				// TODO Auto-generated method stub
 				return bonus;
 			}
 
