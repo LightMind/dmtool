@@ -4,6 +4,7 @@ import gui.Button;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.lwjgl.input.Keyboard;
 import org.newdawn.slick.Color;
@@ -17,6 +18,7 @@ import org.newdawn.slick.state.StateBasedGame;
 
 import creature.Attack;
 import creature.CreatureTemplate;
+import creature.Diceroll;
 import creature.Weapon;
 
 import token.BasicToken;
@@ -24,6 +26,8 @@ import token.TokenFactory;
 import token.gui.TokenHpButton;
 
 public class Tool implements GameState {
+	Random r = new Random();
+
 	boolean useGrid = true;
 	boolean showCreatures = false;
 
@@ -59,7 +63,32 @@ public class Tool implements GameState {
 					b.click(0);
 				}
 			}
+			if (x >= mouseOver.x && x <= mouseOver.x + boxWidth
+					&& y > mouseOver.y + 45 + mouseOver.height) {
+				int index = (y - (mouseOver.y + 45 + mouseOver.height)) / 15;
+				if (index < mouseOver.template.getAttacks().size()) {
+					Attack attack = mouseOver.template.getAttacks().get(index);
+					int attackRoll = r.nextInt(20) + 1
+							+ attack.getAttackBonus();
+					int damageRoll = rollDice(attack.getDamageRoll())
+							+ attack.getDamageBonus();
+					System.out.println("Rolled " + attackRoll + " versus "
+							+ attack.getDefense() + " with " + damageRoll
+							+ " damage");
+				}
+			}
 		}
+	}
+
+	private int rollDice(Diceroll damageRoll) {
+		int sum = 0;
+		for (int i = 0; i < damageRoll.getDice(); i++) {
+			int temp = r.nextInt(damageRoll.getAmount()) + 1;
+			sum += temp;
+			System.out
+					.println("d" + damageRoll.getAmount() + " rolled " + temp);
+		}
+		return sum;
 	}
 
 	@Override
@@ -350,7 +379,9 @@ public class Tool implements GameState {
 
 			int index = 0;
 			for (Attack at : mouseOver.template.getAttacks()) {
-
+				g.drawLine(mouseOver.x + 10, mouseOver.y + 45
+						+ mouseOver.height + 15 * index, mouseOver.x + 100,
+						mouseOver.y + 45 + mouseOver.height + 15 * index);
 				g.drawString(at.toString(), mouseOver.x + 10, mouseOver.y + 45
 						+ mouseOver.height + 15 * index);
 				index++;
