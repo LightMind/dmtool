@@ -23,7 +23,7 @@ public class StandardDice implements Diceroll {
 
 	@Override
 	public String toString() {
-		return "StandardDice [dice= " + amount + "d" + dice + "]";
+		return amount + "d" + dice;
 	}
 	
 	

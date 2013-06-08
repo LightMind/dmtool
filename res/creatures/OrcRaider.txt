@@ -6,8 +6,5 @@ Orc Raider
 4 3 3 0 1 0
 17 15 14 12
 46
-Greataxe
-Handaxe
-Handaxe
-Handaxe
-Handaxe
+GreatAxe 8 AC 1d12+3
+HandAxe 5/10 7 AC 1d6+3

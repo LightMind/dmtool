@@ -2,12 +2,13 @@ package tool;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 import creature.Attack;
 import creature.Diceroll;
 import creature.Weapon;
 
-public class StandardWeapon implements Weapon{
+public class StandardWeapon implements Weapon {
 
 	public final String name;
 	public final Diceroll diceroll;
@@ -16,8 +17,9 @@ public class StandardWeapon implements Weapon{
 	public final int longRange;
 	public final int shortRange;
 	public final int bonus;
-	
-	public StandardWeapon(String name, Diceroll diceroll, int bonus, int shortRange, int longRange, String[] properties, String[] groups){
+
+	public StandardWeapon(String name, Diceroll diceroll, int bonus,
+			int shortRange, int longRange, String[] properties, String[] groups) {
 		this.name = name;
 		this.diceroll = diceroll;
 		this.bonus = bonus;
@@ -28,7 +30,7 @@ public class StandardWeapon implements Weapon{
 		this.properties = new ArrayList<>();
 		Collections.addAll(this.properties, properties);
 	}
-	
+
 	@Override
 	public Attack getAttack() {
 		return new Attack() {
@@ -36,26 +38,39 @@ public class StandardWeapon implements Weapon{
 			public Diceroll getDamageRoll() {
 				return diceroll;
 			}
-			
+
 			@Override
 			public int getDamageBonus() {
 				return 0;
 			}
-			
+
 			@Override
 			public int getAttackBonus() {
 				return bonus;
+			}
+
+			@Override
+			public String getName() {
+				return name;
+			}
+
+			@Override
+			public String getDefense() {
+				// TODO Auto-generated method stub
+				return "AC";
 			}
 		};
 	}
 
 	@Override
 	public boolean depleting() {
-		return properties.contains("LightThrown") || properties.contains("HeavyThrown");
+		return properties.contains("LightThrown")
+				|| properties.contains("HeavyThrown");
 	}
-	
-	public boolean ranged(){
-		return groups.contains("Bow") || groups.contains("Sling") || groups.contains("Crossbow");
+
+	public boolean ranged() {
+		return groups.contains("Bow") || groups.contains("Sling")
+				|| groups.contains("Crossbow");
 	}
 
 	@Override
@@ -80,6 +95,14 @@ public class StandardWeapon implements Weapon{
 	public String getName() {
 		return name;
 	}
-	
-	
+
+	@Override
+	public List<String> getGroups() {
+		return groups;
+	}
+
+	public List<String> getProperties() {
+		return properties;
+	}
+
 }

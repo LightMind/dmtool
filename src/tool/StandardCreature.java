@@ -3,6 +3,7 @@ package tool;
 import java.util.ArrayList;
 import java.util.List;
 
+import creature.Attack;
 import creature.CreatureTemplate;
 import creature.Weapon;
 
@@ -15,11 +16,11 @@ public class StandardCreature implements CreatureTemplate {
 	private int level;
 	private int maxHP;
 	private int initiativeBonus;
-	private ArrayList<Weapon> weapons;
+	private List<Attack> attacks;
 	private int speed;
 	
 		
-	public StandardCreature(String name, int level, int[] ab, int[] mod, int[] def, int hp, List<Weapon> wpns, int initiative, int spd){
+	public StandardCreature(String name, int level, int[] ab, int[] mod, int[] def, int hp, List<Attack> attack, int initiative, int spd){
 		this.name = name;
 		this.level = level;
 		this.ability = ab;
@@ -27,7 +28,7 @@ public class StandardCreature implements CreatureTemplate {
 		this.def = def;
 		this.maxHP = hp;
 		this.initiativeBonus = initiative;
-		this.weapons = new ArrayList<>(wpns);
+		this.attacks = attack;
 		this.speed = spd;
 	}
 	
@@ -57,8 +58,8 @@ public class StandardCreature implements CreatureTemplate {
 	}
 
 	@Override
-	public List<Weapon> getWeapons() {
-		return weapons;
+	public List<Attack> getAttacks() {
+		return attacks;
 	}
 
 	@Override

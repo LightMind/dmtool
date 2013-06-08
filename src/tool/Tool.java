@@ -15,6 +15,7 @@ import org.newdawn.slick.geom.Rectangle;
 import org.newdawn.slick.state.GameState;
 import org.newdawn.slick.state.StateBasedGame;
 
+import creature.Attack;
 import creature.CreatureTemplate;
 import creature.Weapon;
 
@@ -32,7 +33,7 @@ public class Tool implements GameState {
 	int mouseButton = 0;
 	int menuWidth = 200;
 
-	int boxWidth = 300;
+	int boxWidth = 400;
 	int boxHeight = 200;
 
 	Rectangle cmBox = null;
@@ -152,7 +153,8 @@ public class Tool implements GameState {
 
 			}
 			mouseOver = cToken;
-			if ( cToken != null )createMouseBox(mouseOver);
+			if (cToken != null)
+				createMouseBox(mouseOver);
 			cToken = null;
 		}
 	}
@@ -196,12 +198,12 @@ public class Tool implements GameState {
 		if (cmBox != null && mouseOver != null) {
 			for (Button b : buttons) {
 				if (b.shape().contains(mx, my)) {
-					if ( key == Keyboard.KEY_SUBTRACT){
+					if (key == Keyboard.KEY_SUBTRACT) {
 						b.buffer("-");
-					} else
-					if (c >= '0' && c <= '9' || key == Keyboard.KEY_MINUS) {
+					} else if (c >= '0' && c <= '9'
+							|| key == Keyboard.KEY_MINUS) {
 						b.buffer("" + c);
-					} else if (key==Keyboard.KEY_BACK){
+					} else if (key == Keyboard.KEY_BACK) {
 						b.forget();
 					} else {
 						b.buffer("EOI");
@@ -345,6 +347,15 @@ public class Tool implements GameState {
 					"Hp: " + (mouseOver.hpmod + mouseOver.template.getMaxHP())
 							+ " / " + mouseOver.template.getMaxHP(),
 					cmBox.getX() + 10, cmBox.getY() + 30);
+
+			int index = 0;
+			for (Attack at : mouseOver.template.getAttacks()) {
+
+				g.drawString(at.toString(), mouseOver.x + 10, mouseOver.y + 45
+						+ mouseOver.height + 15 * index);
+				index++;
+			}
+
 		}
 
 		if (mouseOver != null)
@@ -401,5 +412,13 @@ public class Tool implements GameState {
 	public void destroyMouseBox() {
 		buttons.clear();
 		cmBox = null;
+	}
+
+	public int getAbilityDamageBonus(BasicToken t, Weapon w) {
+		List<String> properties = w.getProperties();
+		if (w.ranged() && !properties.contains("HeavyThrown")) {
+			return (t.template.getAbility(CreatureTemplate.DEXTERITY) - 10) / 2;
+		}
+		return (t.template.getAbility(CreatureTemplate.STRENGTH) - 10) / 2;
 	}
 }

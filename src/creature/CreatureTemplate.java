@@ -21,7 +21,7 @@ public interface CreatureTemplate {
 	public int getLevel();
 	public int getMaxHP();
 	public int getInititative();
-	public List<Weapon> getWeapons();
 	public int getSpeed();
 	public String getName();
+	List<Attack> getAttacks();
 }
