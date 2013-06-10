@@ -63,7 +63,7 @@ public class Tool implements GameState {
 
 	@Override
 	public void mouseClicked(int button, int x, int y, int clickCount) {
-		if (cmBox != null && mouseOver != null) {
+		if (cmBox != null && mouseOver != null && button == 0) {
 			for (Button b : buttons) {
 				if (b.shape().contains(x, y)) {
 					b.click(0);
@@ -134,6 +134,9 @@ public class Tool implements GameState {
 
 	@Override
 	public void mouseDragged(int oldx, int oldy, int newx, int newy) {
+		mx = newx;
+		my = newy;
+
 		if (mouseButton == 0) {
 			if (cToken == null)
 				return;
@@ -144,6 +147,7 @@ public class Tool implements GameState {
 			cmBox = null;
 			destroyMouseBox();
 		}
+		testMouseOverBox(newx, newy, false);
 	}
 
 	@Override
@@ -162,25 +166,31 @@ public class Tool implements GameState {
 		if (cmBox != null && cmBox.contains(newx, newy)) {
 
 		} else { // not inside the box, check for other tokens.
-			if (!showCreatures || newx > menuWidth) {
-				for (BasicToken t : tokens) {
-					if (t.rect().contains(newx, newy)) {
-						mouseOver = t;
-						found = true;
-						createMouseBox(t);
-
-					}
-				}
-				if (!found) {
-					destroyMouseBox();
-					mouseOver = null;
-					cmBox = null;
-				}
-			}
+			testMouseOverBox(newx, newy, found);
 		}
 		mx = newx;
 		my = newy;
 	}
+
+	private void testMouseOverBox(int newx, int newy, boolean found) {
+		if (!showCreatures || newx > menuWidth) {
+			for (BasicToken t : tokens) {
+				if (t.rect().contains(newx, newy)) {
+					mouseOver = t;
+					found = true;
+					createMouseBox(t);
+
+				}
+			}
+			if (!found) {
+				destroyMouseBox();
+				mouseOver = null;
+				cmBox = null;
+			}
+		}
+	}
+
+	public Attack dragAttack = null;
 
 	@Override
 	public void mousePressed(int button, int x, int y) {
@@ -196,7 +206,7 @@ public class Tool implements GameState {
 				}
 			}
 		}
-		if (showCreatures && x < menuWidth) {
+		if (showCreatures && x < menuWidth && button == 0) {
 			int index = y / 50;
 			if (index < creatures.size()) {
 				cToken = TokenFactory.basicToken(x, y, scale, scale,
@@ -205,6 +215,10 @@ public class Tool implements GameState {
 				dragStartX = x;
 				dragStartY = y;
 			}
+		}
+
+		if (button == 1) {
+			this.dragAttack = mouseOverAttack(x, y);
 		}
 	}
 
@@ -226,7 +240,44 @@ public class Tool implements GameState {
 			if (cToken != null)
 				createMouseBox(mouseOver);
 			cToken = null;
+		} else if (button == 1 && dragAttack != null) {
+			for (BasicToken t : tokens) {
+				if (t.rect().contains(x, y)) {
+					dragAttack(t);
+				}
+			}
 		}
+	}
+
+	private int dragAttack(BasicToken t) {
+		int[] results = rollAttack(dragAttack);
+		int defense = strToDefense(dragAttack.getDefense());
+		if (results[0] >= t.template.getDefense(defense)) {
+			t.hpmod -= results[1];
+			log.addFirst("Hit with " + results[0] + " vs "
+					+ dragAttack.getDefense() + " for " + results[1]
+					+ " damage");
+			return results[1];
+		}
+		log.addFirst("Missed with " + results[0] + " vs "
+				+ dragAttack.getDefense());
+		return 0;
+	}
+
+	public int strToDefense(String def) {
+		if ("AC".equals(def)) {
+			return CreatureTemplate.AC;
+		}
+		if ("REF".equals(def)) {
+			return CreatureTemplate.REFLEX;
+		}
+		if ("FORT".equals(def)) {
+			return CreatureTemplate.FORTITUDE;
+		}
+		if ("WILL".equals(def)) {
+			return CreatureTemplate.WILL;
+		}
+		return CreatureTemplate.AC;
 	}
 
 	int mx, my;
@@ -287,19 +338,46 @@ public class Tool implements GameState {
 				}
 			}
 			Attack a = mouseOverAttack(mx, my);
+
 			if (a != null && c >= '1' && c <= '9') {
-				int totalDamage = 0;
+				System.out.println("mouseover attakcs");
 				int times = Integer.parseInt("" + c);
-				log.addFirst("------ " + c + " Attacks -------");
-				for (int i = 0; i < times; i++) {
-					int[] results = rollAttack(a);
-					totalDamage += results[1];
-					log.addFirst(results[0] + " vs " + a.getDefense() + " : "
-							+ results[1] + "dmg");
+				multipleAttacks(a, times);
+			} else if (dragAttack != null && c >= '1' && c <= '9') {
+				System.out.println("Test multiple drag attacks");
+				BasicToken target = null;
+				for (BasicToken t : tokens) {
+					if (t.rect().contains(mx, my)) {
+						target = t;
+					}
 				}
-				log.addFirst("# Damage = " + totalDamage + " #");
+				if (target != null) {
+					multipleAttacks(dragAttack, Integer.parseInt("" + c),
+							target);
+				}
 			}
 		}
+	}
+
+	private void multipleAttacks(Attack a, int times, BasicToken target) {
+		int totalDamage = 0;
+		log.addFirst("------ " + times + " Attacks -------");
+		for (int i = 0; i < times; i++) {
+			totalDamage += dragAttack(target);
+		}
+		log.addFirst("# Damage = " + totalDamage + " #");
+	}
+
+	private void multipleAttacks(Attack a, int times) {
+		int totalDamage = 0;
+		log.addFirst("------ " + times + " Attacks -------");
+		for (int i = 0; i < times; i++) {
+			int[] results = rollAttack(a);
+			totalDamage += results[1];
+			log.addFirst(results[0] + " vs " + a.getDefense() + " : "
+					+ results[1] + "dmg");
+		}
+		log.addFirst("# Damage = " + totalDamage + " #");
 	}
 
 	@Override
