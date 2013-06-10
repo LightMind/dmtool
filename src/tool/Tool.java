@@ -3,6 +3,8 @@ package tool;
 import gui.Button;
 
 import java.util.ArrayList;
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Random;
 
@@ -50,6 +52,8 @@ public class Tool implements GameState {
 	List<Weapon> weapons;
 	List<CreatureTemplate> creatures;
 
+	Deque<String> log = new LinkedList<String>();
+
 	public Tool(List<Weapon> weapons, List<CreatureTemplate> creatures) {
 		this.weapons = weapons;
 		this.creatures = creatures;
@@ -63,20 +67,33 @@ public class Tool implements GameState {
 					b.click(0);
 				}
 			}
+
+			Attack attack = mouseOverAttack(x, y);
+			int[] results = rollAttack(attack);
+			log.addFirst("Rolled " + results[0] + " versus "
+					+ attack.getDefense() + " with " + results[1] + " damage");
+		}
+	}
+
+	private int[] rollAttack(Attack attack) {
+		int attackRoll = rollDice(d20) + attack.getAttackBonus();
+		int damageRoll = rollDice(attack.getDamageRoll())
+				+ attack.getDamageBonus();
+		int[] results = { attackRoll, damageRoll };
+		return results;
+	}
+
+	public Attack mouseOverAttack(int x, int y) {
+		if (cmBox != null && mouseOver != null) {
 			if (x >= mouseOver.x && x <= mouseOver.x + boxWidth
 					&& y > mouseOver.y + 45 + mouseOver.height) {
 				int index = (y - (mouseOver.y + 45 + mouseOver.height)) / 15;
 				if (index < mouseOver.template.getAttacks().size()) {
-					Attack attack = mouseOver.template.getAttacks().get(index);
-					int attackRoll = rollDice(d20) + attack.getAttackBonus();
-					int damageRoll = rollDice(attack.getDamageRoll())
-							+ attack.getDamageBonus();
-					System.out.println("Rolled " + attackRoll + " versus "
-							+ attack.getDefense() + " with " + damageRoll
-							+ " damage");
+					return mouseOver.template.getAttacks().get(index);
 				}
 			}
 		}
+		return null;
 	}
 
 	public Diceroll d20 = new Diceroll() {
@@ -96,9 +113,18 @@ public class Tool implements GameState {
 		for (int i = 0; i < damageRoll.getAmount(); i++) {
 			int temp = r.nextInt(damageRoll.getDice()) + 1;
 			sum += temp;
-			System.out.println("d" + damageRoll.getDice() + " rolled " + temp);
+			if ((temp == 1 || temp == 20) && damageRoll.getDice() == 20) {
+				log.addFirst("d" + damageRoll.getDice() + " rolled " + temp);
+			}
+			testLog();
 		}
 		return sum;
+	}
+
+	private void testLog() {
+		while (log.size() > 15) {
+			log.removeLast();
+		}
 	}
 
 	@Override
@@ -249,6 +275,19 @@ public class Tool implements GameState {
 					}
 				}
 			}
+			Attack a = mouseOverAttack(mx, my);
+			if (a != null && c >= '1' && c <= '9') {
+				int totalDamage = 0;
+				int times = Integer.parseInt("" + c);
+				log.addFirst("------ " + c + " Attacks -------");
+				for (int i = 0; i < times; i++) {
+					int[] results = rollAttack(a);
+					totalDamage += results[1];
+					log.addFirst(results[0] + " vs " + a.getDefense() + " : "
+							+ results[1] + "dmg");
+				}
+				log.addFirst("# Damage = " + totalDamage + " #");
+			}
 		}
 	}
 
@@ -374,6 +413,16 @@ public class Tool implements GameState {
 			int ydiff = Math.abs(gridify(dragStartY) - gridify(cToken.y));
 			g.drawString("dist:" + Math.max(xdiff / scale, ydiff / scale),
 					cToken.x - 30, cToken.y - 30);
+		}
+
+		int str = 0;
+
+		for (String s : log) {
+			g.setColor(new Color(60, 200, 60, (10 - str) * 10 + 150));
+			int x = container.getWidth() - s.length() * 9 - 10;
+			int y = container.getHeight() - 15 - 17 * str;
+			str++;
+			g.drawString(s, x, y);
 		}
 
 		if (mouseOver != null) {
