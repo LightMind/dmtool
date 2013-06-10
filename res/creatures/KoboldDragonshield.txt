@@ -1,0 +1,9 @@
+Kobold Dragonshield
+2
++4
+5
+14 12 13 9 12 10
+3 2 2 0 2 1
+18 14 13 13
+36
+ShortSword 7 AC 1d6+3

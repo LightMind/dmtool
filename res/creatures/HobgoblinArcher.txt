@@ -1,0 +1,10 @@
+Hobgoblin Archer
+3
++7
+6
+14 15 19 11 14 10
+3 3 5 1 3 1
+17 13 15 13
+39
+Longsword 6 AC 1d8+2
+Longbow 9 AC 1d10+4

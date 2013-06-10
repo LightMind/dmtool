@@ -30,6 +30,8 @@ import token.gui.TokenHpButton;
 public class Tool implements GameState {
 	Random r = new Random();
 
+	int menumod = 0;
+
 	boolean useGrid = true;
 	boolean showCreatures = false;
 
@@ -37,7 +39,7 @@ public class Tool implements GameState {
 	int dragStartY = 0;
 	int scale = 25;
 	int mouseButton = 0;
-	int menuWidth = 200;
+	int menuWidth = 220;
 
 	int boxWidth = 400;
 	int boxHeight = 200;
@@ -69,9 +71,12 @@ public class Tool implements GameState {
 			}
 
 			Attack attack = mouseOverAttack(x, y);
-			int[] results = rollAttack(attack);
-			log.addFirst("Rolled " + results[0] + " versus "
-					+ attack.getDefense() + " with " + results[1] + " damage");
+			if (attack != null) {
+				int[] results = rollAttack(attack);
+				log.addFirst("Rolled " + results[0] + " versus "
+						+ attack.getDefense() + " with " + results[1]
+						+ " damage");
+			}
 		}
 	}
 
@@ -195,7 +200,7 @@ public class Tool implements GameState {
 			int index = y / 50;
 			if (index < creatures.size()) {
 				cToken = TokenFactory.basicToken(x, y, scale, scale,
-						creatures.get(index));
+						creatures.get(index + menumod));
 				tokens.add(cToken);
 				dragStartX = x;
 				dragStartY = y;
@@ -233,6 +238,12 @@ public class Tool implements GameState {
 				if (b.shape().contains(mx, my)) {
 					b.click(change > 0 ? 1 : -1);
 				}
+			}
+		}
+		if (showCreatures && mx < menuWidth) {
+			menumod += change > 0 ? -1 : 1;
+			if (menumod < 0) {
+				menumod = 0;
 			}
 		}
 	}
@@ -397,6 +408,11 @@ public class Tool implements GameState {
 			g.fillRect(t.x, t.y, t.width, t.height);
 			g.setColor(Color.lightGray);
 			g.drawRect(t.x, t.y, t.width, t.height);
+			g.setColor(new Color(120, 20, 20, 128));
+			g.fillRect(t.x, t.y, t.width, t.height * t.healthPercent());
+			g.setColor(Color.blue);
+			g.drawString("" + t.initiative, t.x + 5, t.y + 5);
+
 		}
 
 		if (cToken != null) {
@@ -461,8 +477,8 @@ public class Tool implements GameState {
 			g.setColor(new Color(30, 30, 100, 230));
 			g.fillRect(0, 0, menuWidth, container.getHeight());
 			g.setColor(Color.white);
-			for (int i = 0; i < creatures.size(); i++) {
-				int baseline = 50 * i;
+			for (int i = menumod; i < creatures.size(); i++) {
+				int baseline = 50 * i - menumod * 50;
 				g.setColor(Color.white);
 				g.fillRect(0, baseline, menuWidth, 50);
 				g.setColor(Color.black);

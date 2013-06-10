@@ -1,0 +1,10 @@
+Kobold Minion
+1
++3
+6
+8 12 16 9 12 10
+-1 1 3 -1 1 0
+15 11 13 11
+1
+Javelin 5 AC 4
+Javelin 10/20 5 AC 4

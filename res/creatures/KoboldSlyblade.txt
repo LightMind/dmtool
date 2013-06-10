@@ -1,0 +1,9 @@
+Kobold Slyblade
+4
++10
+6
+9 12 18 9 12 14
+1 3 6 1 3 4
+18 12 16 14
+42
+ShortSword 9 AC 1d6

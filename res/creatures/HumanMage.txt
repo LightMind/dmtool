@@ -1,0 +1,12 @@
+Human Mage
+4
++4
+6
+10 12 14 18 17 12
+2 3 4 6 5 3
+17 13 14 15
+42
+Quarterstaff 4 AC 1d8
+MagicMissile 20/20 7 REF 2d4+4
+DancingLightning 10/10 7 REF 1d6+4
+ThunderBurst 1/10 7 FORT 1d8+4

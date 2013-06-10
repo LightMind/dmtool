@@ -1,0 +1,10 @@
+Kobold Wyrmpriest
+3
++4
+6
+9 12 16 9 17 12
+0 2 4 0 4 2
+17 13 15 15
+36
+Spear 7 AC 1d8
+EnergyOrb 10/10 6 REF 1d10+3
