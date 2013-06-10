@@ -42,7 +42,6 @@ public class Tool implements GameState {
 	int menuWidth = 220;
 
 	int boxWidth = 400;
-	int boxHeight = 200;
 
 	Rectangle cmBox = null;
 
@@ -529,8 +528,8 @@ public class Tool implements GameState {
 			g.setColor(Color.lightGray);
 			g.fill(cmBox);
 			g.setColor(Color.black);
-			g.drawString(" " + mouseOver.template.getName(), mouseOver.x + 5,
-					mouseOver.y + 5 + mouseOver.height);
+			g.drawString("" + mouseOver.template.getName(), mouseOver.x + 5,
+					mouseOver.y + mouseOver.height);
 			g.drawString(
 					"Hp: " + (mouseOver.hpmod + mouseOver.template.getMaxHP())
 							+ " / " + mouseOver.template.getMaxHP(),
@@ -545,6 +544,20 @@ public class Tool implements GameState {
 						+ mouseOver.height + 15 * index);
 				index++;
 			}
+
+			int defbase = mouseOver.x + boxWidth - 180;
+			int ybase = mouseOver.y + mouseOver.height;
+			CreatureTemplate template = mouseOver.template;
+			g.drawString("AC  : " + template.getDefense(CreatureTemplate.AC),
+					defbase, ybase);
+			g.drawString(
+					"REF : " + template.getDefense(CreatureTemplate.REFLEX),
+					defbase + 100, ybase);
+			g.drawString(
+					"FORT: " + template.getDefense(CreatureTemplate.FORTITUDE),
+					defbase, ybase + 18);
+			g.drawString("WILL: " + template.getDefense(CreatureTemplate.WILL),
+					defbase + 100, ybase + 18);
 
 		}
 
@@ -586,8 +599,10 @@ public class Tool implements GameState {
 		if (mouseOver == null) {
 			return null;
 		}
+		int height = mouseOver.template.getAttacks().size() * 15 + 65;
+
 		return new Rectangle(mouseOver.x, mouseOver.y + mouseOver.height - 5,
-				boxWidth, boxHeight);
+				boxWidth, height);
 	}
 
 	public List<Button> buttons = new ArrayList<Button>();

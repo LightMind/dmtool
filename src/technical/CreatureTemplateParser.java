@@ -96,6 +96,7 @@ public class CreatureTemplateParser {
 				.parseInt(tt[4].substring(0, tt[4].indexOf('d')));
 		int dice1 = 0;
 		int bonus1 = 0;
+
 		if (tt[4].contains("+")) {
 			dice1 = Integer.parseInt(tt[4].substring(tt[4].indexOf('d') + 1,
 					tt[4].indexOf('+')));
