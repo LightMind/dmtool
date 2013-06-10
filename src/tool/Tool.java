@@ -137,9 +137,7 @@ public class Tool implements GameState {
 		mx = newx;
 		my = newy;
 
-		if (mouseButton == 0) {
-			if (cToken == null)
-				return;
+		if (cToken != null) {
 			cToken.x += newx - oldx;
 			cToken.y += newy - oldy;
 
@@ -147,7 +145,7 @@ public class Tool implements GameState {
 			cmBox = null;
 			destroyMouseBox();
 		}
-		testMouseOverBox(newx, newy, false);
+		// testMouseOverBox(newx, newy, false);
 	}
 
 	@Override
@@ -191,22 +189,27 @@ public class Tool implements GameState {
 	}
 
 	public Attack dragAttack = null;
+	public int startx, starty;
+	public List<BasicToken> selected = new ArrayList<BasicToken>();
+	boolean pressed = false;
 
 	@Override
 	public void mousePressed(int button, int x, int y) {
 		mouseButton = button;
-		if (!showCreatures || x > menuWidth) {
-			if (button == 0) {
-				for (BasicToken t : tokens) {
-					if (t.rect().contains(x, y)) {
-						cToken = t;
-						dragStartX = t.x;
-						dragStartY = t.y;
-					}
+		if (button == 1) {
+			this.dragAttack = mouseOverAttack(x, y);
+			dragAttackused = false;
+		} else if (!showCreatures || x > menuWidth && button == 0) {
+			for (BasicToken t : tokens) {
+				if (selected.contains(t)) {
+					pressed = false;
+				} else if (t.rect().contains(x, y)) {
+					cToken = t;
+					dragStartX = t.x;
+					dragStartY = t.y;
 				}
 			}
-		}
-		if (showCreatures && x < menuWidth && button == 0) {
+		} else if (showCreatures && x < menuWidth && button == 0) {
 			int index = y / 50;
 			if (index < creatures.size()) {
 				cToken = TokenFactory.basicToken(x, y, scale, scale,
@@ -217,35 +220,38 @@ public class Tool implements GameState {
 			}
 		}
 
-		if (button == 1) {
-			this.dragAttack = mouseOverAttack(x, y);
-		}
 	}
 
 	private int gridify(int pos) {
 		return scale * Math.round((float) pos / (float) scale);
 	}
 
+	boolean dragAttackused = false;
+
 	@Override
 	public void mouseReleased(int button, int x, int y) {
+
 		if (cmBox != null && cmBox.contains(x, y)) {
 
 		} else if (button == 0) {
 			if (cToken != null && useGrid) {
 				cToken.x = gridify(cToken.x);
 				cToken.y = gridify(cToken.y);
-
-			}
-			mouseOver = cToken;
-			if (cToken != null)
+				mouseOver = cToken;
 				createMouseBox(mouseOver);
+			}
 			cToken = null;
-		} else if (button == 1 && dragAttack != null) {
-			for (BasicToken t : tokens) {
-				if (t.rect().contains(x, y)) {
-					dragAttack(t);
+
+		}
+		if (button == 1 && dragAttack != null) {
+			if (!dragAttackused) {
+				for (BasicToken t : tokens) {
+					if (t.rect().contains(x, y)) {
+						dragAttack(t);
+					}
 				}
 			}
+			dragAttack = null;
 		}
 	}
 
@@ -345,6 +351,7 @@ public class Tool implements GameState {
 				multipleAttacks(a, times);
 			} else if (dragAttack != null && c >= '1' && c <= '9') {
 				System.out.println("Test multiple drag attacks");
+				dragAttackused = true;
 				BasicToken target = null;
 				for (BasicToken t : tokens) {
 					if (t.rect().contains(mx, my)) {
@@ -490,7 +497,6 @@ public class Tool implements GameState {
 			g.fillRect(t.x, t.y, t.width, t.height * t.healthPercent());
 			g.setColor(Color.blue);
 			g.drawString("" + t.initiative, t.x + 5, t.y + 5);
-
 		}
 
 		if (cToken != null) {
@@ -519,7 +525,7 @@ public class Tool implements GameState {
 			g.drawString(s, x, y);
 		}
 
-		if (mouseOver != null) {
+		if (mouseOver != null && dragAttack == null) {
 			g.setColor(Color.lightGray);
 			g.fill(cmBox);
 			g.setColor(Color.black);
@@ -542,7 +548,7 @@ public class Tool implements GameState {
 
 		}
 
-		if (mouseOver != null)
+		if (mouseOver != null && dragAttack == null)
 			for (Button b : buttons) {
 				g.translate(b.shape().getMinX(), b.shape().getMinY());
 				g.pushTransform();
@@ -567,6 +573,7 @@ public class Tool implements GameState {
 						baseline + 5);
 			}
 		}
+
 	}
 
 	@Override
